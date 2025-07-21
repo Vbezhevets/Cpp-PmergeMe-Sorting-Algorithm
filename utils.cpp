@@ -1,7 +1,7 @@
 #include "ex02.hpp"
 #include <vector>
 
-inline std::vector <int> pair:: goDeep()  {
+inline std::vector <int> pair:: goDeep()   {
 		std::vector<int> res;
 		if (!left && !right){
 			res.push_back(last);
@@ -28,11 +28,11 @@ inline std::vector <int> pair:: goDeep()  {
         std::vector <int> jnums;
         int j = 0;
         int i = 1;
-        while (j - 1 < n){
+        while (j  <= n){
             j = jacob(i);
             jnums.push_back(j);
             i++;
-            std::cout << "for " << i << " j = " << j << "\n";
+            // std::cout << "for " << i << " j = " << j << "\n";
         }
         return jnums;
     }

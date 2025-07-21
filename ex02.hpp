@@ -25,7 +25,7 @@ class pair {
 		pair(int i) : left(nullptr), right(nullptr), last(i) {};
 		pair(pair* small, pair *big, int i) : left(small), right(big), last(i)  {};
 
-		std::vector<int> goDeep();
+		std::vector<int> goDeep() ;
 
 		std::vector <int> goDeepTakeRight() ;
 	}; 
