@@ -28,16 +28,41 @@ class pair {
 		std::vector<int> goDeep() ;
 
 		std::vector <int> goDeepTakeRight() ;
+		
+
 	}; 
-	
+		
 	std::vector<int>& operator+=(std::vector<int>& v,  pair const *other); //only for reminder
 		
 
 
 class Level {
+
 	public:
 	std::vector <pair *> pairs; /// сделать шаблон вместо вектора
 	std::vector<int> rem;
+	
+	void addPair(int n) {
+		pair *newPair = new pair(n);
+		pairs.push_back(newPair);
+	}
+	void addPair(pair *small, pair* big, int last) {
+		pair *newPair = new pair(small, big, last);
+		pairs.push_back(newPair);
+	}
+	void takeReminder (pair *remPair){
+		rem = remPair->goDeepTakeRight(); 
+	}
+ 
+	int getSize(){
+		return pairs.size();
+	}
+
+	~Level() {
+		for (int i = 0; i < pairs.size(); i++) 
+			delete(pairs[i]);
+	}
+	
 };
 
 
@@ -47,6 +72,4 @@ void printVector(const std::vector<int>& v);
 int jacob( int n);
 std::vector <int> getJacobsNums(int n);
 
-// void printQ(std::deque<std::vector<int> >& q, char c);
-// void printV(std::vector<int>& p);
 #endif

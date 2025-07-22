@@ -62,6 +62,8 @@ std::vector<int>& operator+=(std::vector<int>& v,  pair  *other) { //only for re
 	return v;
 }
 
+
+
 void printPairSubtree(pair* node, int indent = 0) {
     if (!node) return;
     // отступ
@@ -80,6 +82,10 @@ void printPairSubtree(pair* node, int indent = 0) {
         printPairSubtree(node->right, indent + 1);
     }
 }
+
+
+
+
 void printLevels(const std::vector<Level>& levels) {
     for (size_t lvl = 0; lvl < levels.size(); ++lvl) {
         const Level& L = levels[lvl];
@@ -107,3 +113,6 @@ void printVector(const std::vector<int>& v) {
         std::cout << " " << v[i] << " ";
     std::cout << "\n";
 }
+
+
+
