@@ -69,12 +69,11 @@ std::vector <int>  mErGe(std::vector <Level *>& levels, int l) {
 			int	limit = jNums[i] - 1;
 			if (limit >= Q)
 				limit = Q -  1;
-			int insertedPos = 0;
 			for (int idx = limit; idx > prevJ; idx--) {
-				int w = level->pairs[idx]->right->last;
-				int winPos = rightIndexes[idx];
+				
 				int l = level->pairs[idx]->left->last;
-				 insertedPos = binInsert(mainChain, l, 0, winPos - 1 );
+				int insertedPos = binInsert(mainChain, l, 0, rightIndexes[idx] - 1 );
+				
 				for (int k = 0; k < rightIndexes.size(); k++){
 					if (insertedPos <= rightIndexes[k])
 						rightIndexes[k] ++;
