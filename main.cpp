@@ -8,18 +8,14 @@ int count = 0;
 
 
 int binInsert(std::vector<int> &v, int n, int left, int right) {
-	
 	while (left <= right){
-
 		count++;
-		
 		int middle = left + (right - left) / 2;
 		if (n < v[middle])
 			right = middle - 1;
 		else 
 			left = middle + 1;
 	}
-
 	v.insert(v.begin() + left, n);
 	return left;
 }
@@ -47,50 +43,53 @@ Level *intoPairs(std::vector <Level *>& levels, int l){
 	return(intoPairs(levels, l + 1)); 
 }
  
+ 
 
 std::vector <int>  mErGe(std::vector <Level *>& levels, int l) {
-
 	std::vector<int>  mainChain;
-
 	for (int i = 0; i< levels[l]->getSize(); i ++) 
 		mainChain.push_back(levels[l]->pairs[i]->right->last); 
-	// std::cout << "starting with chain "; printVector(mainChain);
 	for (int lvl = l ; lvl > 0; lvl-- ){
 		Level* level = levels[lvl];
 		int Q = level->getSize(); 
 		std::vector<int> jNums = getJacobsNums(Q ); 
-		// std::cout << "ja"  <<std::endl;
-		 printVector(jNums);
 		
+		std::vector <int > rightIndexes (Q);
+		for (int i = 0; i < Q; i ++) {
+			
+			int r = level->pairs[i]->right->last;
+			for (int n = 0; n < mainChain.size(); n++)
+				if (r == mainChain[n]) {
+					rightIndexes[i] = n;
+					break;
+				}
+		}
 		int prevJ = -1; 
 		for (size_t i = 0; i < jNums.size(); i++) {  
 			int	limit = jNums[i] - 1;
 			if (limit >= Q)
 				limit = Q -  1;
-			
+			int insertedPos = 0;
 			for (int idx = limit; idx > prevJ; idx--) {
 				int w = level->pairs[idx]->right->last;
-				int winPos = lower_bound(mainChain.begin(), mainChain.end(), w) - mainChain.begin();
-
+				int winPos = rightIndexes[idx];
 				int l = level->pairs[idx]->left->last;
-				// std::cout << "idx | " << idx << " | inserting " << l << std::endl;
-				binInsert(mainChain, l, 0, winPos - 1 );
-				// std::cout << " chain "; printVector(mainChain);
-
+				 insertedPos = binInsert(mainChain, l, 0, winPos - 1 );
+				for (int k = 0; k < rightIndexes.size(); k++){
+					if (insertedPos <= rightIndexes[k])
+						rightIndexes[k] ++;
+				}
 			}
 			prevJ = limit;
 		}
 		for (int i = levels[lvl]->rem.size() - 1; i >= 0; i--) {
 			int s = mainChain.size() - 1 ;
-		//    std::cout << "size | " << s << " | inserting " << levels[lvl]->rem[i] << std::endl;
-
 			binInsert(mainChain, levels[lvl]->rem[i], 0, s );
 		}
 	}
  
 	return mainChain;
 }
-
 
 int main(int argc, char **argv){ 
 	if (argc!=2) 
@@ -119,7 +118,7 @@ int main(int argc, char **argv){
 	
 	
 	intoPairs(levels, 0); 
-	printLevels(levels);
+	// printLevels(levels);
 	std::cout << "\n";
 	
 	std::cout << "pair comparisons: " << count << "\n";
