@@ -1,15 +1,52 @@
-#include "ex02.hpp"
+
+#include <climits>
 #include <cstddef>
-#include <iostream>
+#include <cstdio>
+#include <ctime>
+#include <iterator>
+#include <ostream>
+#include <type_traits>
+#include <vector>
 #include <sstream>
+#include <string>
+#include <iostream>
 
-int count = 0;
+#include <deque>
+#include <iomanip>
+#include "Level.hpp"
+
+// int count = 0;
+template <typename Container>
+void print(const Container& v) {
+    for (int i = 0; i < static_cast<int>(v.size()); ++i) 
+        std::cout  << v[i] << " ";
+    std::cout << "\n";
+}
 
 
+int jacob( int n) {
+	if (n <= 1)
+		return 1;
+	return (jacob(n - 1) + 2 * jacob(n - 2));
+}
+template <typename Container>
+Container getJacobsNums(int n) {
+	Container jnums;
+	int j = 0;
+	int i = 1;
+	while (j  <= n){
+		j = jacob(i);
+		jnums.push_back(j);
+		i++;
+		// std::cout << "for " << i << " j = " << j << "\n";
+	}
+	return jnums;
+}
 
-int binInsert(std::vector<int> &v, int n, int left, int right) {
+template <typename Container>
+int binInsert(Container &v, int n, int left, int right) {
 	while (left <= right){
-		count++;
+		// count++;
 		int middle = left + (right - left) / 2;
 		if (n < v[middle])
 			right = middle - 1;
@@ -19,13 +56,13 @@ int binInsert(std::vector<int> &v, int n, int left, int right) {
 	v.insert(v.begin() + left, n);
 	return left;
 }
+template <typename Container, typename LevelType>
+LevelType *intoPairs(Container& levels, int l){
 
-Level *intoPairs(std::vector <Level *>& levels, int l){
-
-	Level *prevL = levels[l];
+	LevelType *prevL = levels[l];
 	if (prevL->pairs.size() < 2) 
 		return (prevL);
-	Level *curL = new Level();
+	LevelType *curL = new LevelType();
 
     int i = 0;
 	while (i  < prevL->getSize() - 1) {
@@ -34,38 +71,38 @@ Level *intoPairs(std::vector <Level *>& levels, int l){
         else
 			curL->addPair(prevL->pairs[i + 1], prevL->pairs[i], prevL->pairs[i]->last);
 		i += 2;
-		count++;
+		// count++;
     }
 	if (i < prevL->getSize()) 
 		curL->takeReminder(prevL->pairs[i]);
 	levels.push_back(curL);
 	
-	return(intoPairs(levels, l + 1)); 
+	return(intoPairs<Container, LevelType>(levels, l + 1)); 
 }
  
  
-
-std::vector <int>  mErGe(std::vector <Level *>& levels, int l) {
-	std::vector<int>  mainChain;
+template <template <typename, typename> class Container, typename LevelType>
+Container <int, std::allocator <int> > mErGe(Container<LevelType*, std::allocator<LevelType*> >& levels, int l) {
+	Container <int, std::allocator<int> > mainChain;
 	for (int i = 0; i< levels[l]->getSize(); i ++) 
 		mainChain.push_back(levels[l]->pairs[i]->right->last); 
 	for (int lvl = l ; lvl > 0; lvl-- ){
-		Level* level = levels[lvl];
+		LevelType* level = levels[lvl];
 		int Q = level->getSize(); 
-		std::vector<int> jNums = getJacobsNums(Q ); 
+		Container <int, std::allocator<int> > jNums = getJacobsNums<Container<int, std::allocator<int> > >(Q ); 
 		
-		std::vector <int > rightIndexes (Q);
+		Container <int, std::allocator<int> > rightIndexes (Q);
 		for (int i = 0; i < Q; i ++) {
 			
 			int r = level->pairs[i]->right->last;
-			for (int n = 0; n < mainChain.size(); n++)
+			for (int n = 0; n < static_cast<int>(mainChain.size()); n++)
 				if (r == mainChain[n]) {
 					rightIndexes[i] = n;
 					break;
 				}
 		}
 		int prevJ = -1; 
-		for (size_t i = 0; i < jNums.size(); i++) {  
+		for (int i = 0; i < static_cast<int>(jNums.size()); i++) {  
 			int	limit = jNums[i] - 1;
 			if (limit >= Q)
 				limit = Q -  1;
@@ -74,59 +111,103 @@ std::vector <int>  mErGe(std::vector <Level *>& levels, int l) {
 				int l = level->pairs[idx]->left->last;
 				int insertedPos = binInsert(mainChain, l, 0, rightIndexes[idx] - 1 );
 				
-				for (int k = 0; k < rightIndexes.size(); k++){
+				for (int k = 0; k < static_cast<int>(rightIndexes.size()); k++){
 					if (insertedPos <= rightIndexes[k])
 						rightIndexes[k] ++;
 				}
 			}
 			prevJ = limit;
 		}
-		for (int i = levels[lvl]->rem.size() - 1; i >= 0; i--) {
-			int s = mainChain.size() - 1 ;
-			binInsert(mainChain, levels[lvl]->rem[i], 0, s );
-		}
+		for (int i = levels[lvl]->rem.size() - 1; i >= 0; i--) 
+			binInsert(mainChain, levels[lvl]->rem[i], 0, mainChain.size() - 1);
+		
 	}
  
 	return mainChain;
 }
 
 int main(int argc, char **argv){ 
+	std::clock_t start, vecEnd, deqEnd;
+	
 	if (argc!=2) 
 		return 0;
     std::string s = argv[1];
 	
+	       
+	std::vector<int> nums;
+	int num;
 	std::istringstream iss(s);
-	int num; 
-    Level *level0 = new Level;
-	
 	while ((iss >> num)) {
-		// std::cout<<num << std::endl;
-		level0->addPair(num); }
-    
+		if (num < 0)
+			return (std::cout << "negative number not accepted\n", 1);
+		nums.push_back(num);}
 	if (!iss.eof()){
 		std::cerr << "Error: invalid input\n";
 		return (1);
-	} 
+	}
+	int s1ze = nums.size();
 
-	std::cout<<"Before: "; 
-	for (int i = 0; i < level0->getSize(); i++)
-		std::cout<< level0->pairs[i]->last << " "; 
+		std::cout<<"Before: ";
+		for (size_t i = 0; i < nums.size(); i++)
+			std::cout<< nums[i] << " "; 
+					std::cout<< "\n"; 
 
-	std::vector <Level *> levels; 
-	levels.push_back(level0);
-	
-	
-	intoPairs(levels, 0); 
-	// printLevels(levels);
-	std::cout << "\n";
-	
-	std::cout << "pair comparisons: " << count << "\n";
+		{
+			start = std::clock();
+			
+			typedef Level<std::vector<pair*>, std::vector<int> > VecLevel; 
+			VecLevel *level0 = new VecLevel;
+			
+			for (size_t i = 0; i < nums.size(); i++)
+				level0->addPair(nums[i]); 
 
-	std::vector<int> res =  mErGe(levels, levels.size() - 1 ); 
-	printVector(res);
-	std::cout << "Total comparisons: " << count << "\n";
-	for (size_t i = 0; i < levels.size(); i++)
-		delete(levels[i]);
-	// std::cout << "11 2 17 0 16 8 6 15 10 3 21 1 18 9 76 14 19 12 5 4 20 13 7 \n"; 	s = "11 103 2 17 0 16 8 6 98  15 10 3 21 32 1 18 9 14 19 12 5 4 20 13 7 ";
+			std::vector <VecLevel *> levels; 
+			levels.push_back(level0);
+			
+			intoPairs<std::vector<VecLevel *>, VecLevel>(levels, 0); 
+			
+			std::vector<int> res =  mErGe<std::vector, VecLevel>(levels, levels.size() - 1 ); 
 
+			for (int i = 0; i < static_cast<int>(levels.size()); i++)
+				delete(levels[i]);
+			
+			std::cout<<"After: ";
+				print(res);
+
+			vecEnd = std::clock();
+			vecEnd -= start;
+		}
+		{	
+			start = std::clock();
+
+			typedef Level<std::deque<pair*>, std::deque<int> > DeqLevel; 
+			DeqLevel *level0 = new DeqLevel;
+			
+			for (size_t i = 0; i < nums.size(); i++)
+				level0->addPair(nums[i]); 
+
+			std::deque <DeqLevel *> levels; 
+			levels.push_back(level0);
+			intoPairs<std::deque<DeqLevel *>, DeqLevel>(levels, 0); 
+			
+			std::deque<int> res =  mErGe<std::deque, DeqLevel>(levels, levels.size() - 1 );
+			deqEnd = std::clock();
+			deqEnd -= start;
+
+		// std::cout << "Total comparisons: " << count << "\n";
+			for (int i = 0; i < static_cast<int>(levels.size()); i++)
+				delete(levels[i]);
+			
+		}
+
+		std::cout << "Time to process a range of " << s1ze 
+				<< " elements with std::vector: " 
+				<< static_cast<double>(vecEnd) * 1e6 / CLOCKS_PER_SEC 
+				<< " us" << std::endl;
+
+		std::cout << "Time to process a range of " << s1ze 
+				<< " elements with std::deque: " 
+				<< static_cast<double>(deqEnd) * 1e6 / CLOCKS_PER_SEC 
+				<< " us" << std::endl;
 } 
+//	s = "11 103 2 17 0 16 8 6 98  15 10 3 21 32 1 18 9 14 19 12 5 4 20 13 7 ";

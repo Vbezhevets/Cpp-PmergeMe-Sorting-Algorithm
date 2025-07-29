@@ -2,11 +2,11 @@ NAME = PmergeMe
 
 
 CXX = g++
-CXXFLAGS = #-std=c++98 -Wall -Wextra -Werror
+CXXFLAGS = -std=c++98 -Wall -Wextra -Werror
  
 RM = rm -rf
 
-SRCS = main.cpp  utils.cpp
+SRCS = main.cpp  
 OBJS = $(SRCS:.cpp=.o)
 
 all: $(NAME)
