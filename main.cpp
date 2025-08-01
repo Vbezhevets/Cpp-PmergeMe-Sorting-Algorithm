@@ -38,7 +38,6 @@ Container getJacobsNums(int n) {
 		j = jacob(i);
 		jnums.push_back(j);
 		i++;
-		// std::cout << "for " << i << " j = " << j << "\n";
 	}
 	return jnums;
 }
@@ -194,7 +193,7 @@ int main(int argc, char **argv){
 			deqEnd = std::clock();
 			deqEnd -= start;
 
-		// std::cout << "Total comparisons: " << count << "\n";
+
 			for (int i = 0; i < static_cast<int>(levels.size()); i++)
 				delete(levels[i]);
 			
@@ -210,4 +209,3 @@ int main(int argc, char **argv){
 				<< static_cast<double>(deqEnd) * 1e6 / CLOCKS_PER_SEC 
 				<< " us" << std::endl;
 } 
-//	s = "11 103 2 17 0 16 8 6 98  15 10 3 21 32 1 18 9 14 19 12 5 4 20 13 7 ";
